@@ -19,12 +19,15 @@ const register = async (req, res) => {
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
     const coverImageLocalPath = req.files.coverImage[0].path;
-
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
     if (!avatarLocalPath) {
       throw new HttpError(400, "Avatar file is required");
+    }
+
+    if (!coverImage) {
+      throw new HttpError(400, "Cover file is required");
     }
 
     const user = await User.create({
@@ -52,6 +55,7 @@ const register = async (req, res) => {
       data: createdUser,
     });
   } catch (err) {
+    console.log(err);
     if (err.statusCode) {
       return res.status(err.statusCode).json({
         status: err.statusCode,
@@ -65,7 +69,6 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { username, email, password } = req.body;
-  console.log(username);
   try {
     if (!(username || email)) {
       throw new HttpError(400, "username or email is required");
